@@ -1,7 +1,5 @@
 [TOC]
 
-
-
 # PHP
 
 # PHP基础
@@ -707,3 +705,146 @@ echo date('Y-m-d H:i:s', $time) //时间戳转为可读的时间格式
 ```
 
 ### 15、数据库
+
+#### 命令操作数据库
+
+##### 进入和退出操作
+
+###### 进入数据库
+
+> mysql -u用户名 -p密码
+>
+> mysql -u用户名 -p   根据提示输入密码
+
+###### 退出数据库
+
+> quit  |  exit
+
+###### 取消未执行的命令
+
+> show database \c
+
+##### 数据库相关命令
+
+###### 显示数据库列表
+
+```mysql
+show databases;
+```
+
+###### 创建数据库
+
+```mysql
+create database bbs charset=utf8;
+create database bbs character set utf8;
+```
+
+###### 删除数据库
+
+```mysql
+drop database bbs;
+```
+
+###### 切换数据库
+
+```mysql
+use bbs;
+```
+
+###### 查看当前数据库
+
+```mysql
+select database();
+```
+
+###### 查看当前用户
+
+```mysql
+select user();
+```
+
+###### 查看数据库的编码格式
+
+```mysql
+show variables like 'character_set_database';
+```
+
+###### 修改数据库的编码格式
+
+```mysql
+alter database bbs character set utf8;
+alter database bbs charset=utf8;
+```
+
+##### 数据表相关命令
+
+###### 创建表
+
+```mysql
+create table user(
+    id int,
+    username varchar(32),
+    password varchar(32)
+) default charset=utf8;
+```
+
+###### 显示表
+
+```mysql
+show tables;
+```
+
+###### 删除表
+
+```mysql
+drop table user;
+```
+
+###### 显示表结构
+
+```mysql
+desc user;
+```
+
+###### 修改表名
+
+```mysql
+alter table user rename userinfo;
+```
+
+###### 修改表字段、编码
+
+```mysql
+alter table user change password pass varchar(32) character set utf8;
+alter table user modify username varchar(40) character set utf8;
+```
+
+###### 修改表编码格式
+
+```mysql
+alter table user character set utf8;
+alter table user charset=utf8;
+```
+
+###### 显示表的创建源码
+
+```mysql
+show create table user;
+```
+
+###### 删除表字段
+
+```mysql
+alter table user drop password;
+```
+
+###### 添加表字段
+
+```mysql
+alter table user add password varchar(32) first;
+alter table user add password varchar(32) after username;
+```
+
+
+
+#### php操作数据库
