@@ -845,6 +845,251 @@ alter table user add password varchar(32) first;
 alter table user add password varchar(32) after username;
 ```
 
+#### 数据库数据类型
+
+##### 整型
+
+|   整型    | 所占字节 |        取值范围        |
+| :-------: | :------: | :--------------------: |
+|  tinyint  |  1字节   |        -128~127        |
+| smallint  |  2字节   |      -32768~32767      |
+| mediumint |  3字节   |    -8388608~8388607    |
+|    int    |  4字节   | -2147483648~2147483647 |
+|  bigint   |  8字节   |   +-9.22*10的18次方    |
+
+##### 浮点型
+
+|   浮点类型    | 所占字节 |              备注              |
+| :-----------: | :------: | :----------------------------: |
+|  float(m, d)  |  4字节   | 单精度浮点数，m总个数，d小数位 |
+| double(m, d)  |  8字节   | 双精度浮点数，m总个数，d小数位 |
+| decimal(m, d) |          |      存储为字符串的浮点数      |
+
+##### 字符型
+
+| 字符类型 |   所占字节   |    备注    |
+| :------: | :----------: | :--------: |
+|   char   |  0-255字节   | 定长字符串 |
+| varchar  | 0-655355字节 | 变长字符串 |
+
+###### MD5转换
+
+```php
+echo md5('abc');   // 转换密码为32位定长字符串存入数据库
+```
+
+##### 时间类型
+
+| 时间类型 | 所占字节 |          备注          |
+| :------: | :------: | :--------------------: |
+|   date   |  4字节   | 日期，格式：2014-09-18 |
+
+##### 自动增长类型
+
+- `auto_increment`,只用于整型，可以设置起始值，默认为1
+
+- 常与后面`primary key`一起使用
+
+- 创建表时在整型字段后面加上：auto_increment=起始值 primary key
+
+- 修改起始值
+
+  ```mysql
+  alter table user auto_increment=起始值;
+  ```
+
+#### 索引
+
+##### 添加索引
+
+###### 普通索引
+
+```mysql
+alter table user add index(age);
+```
+
+###### 唯一索引
+
+```mysql
+alter table user add unique(password); 
+```
+
+###### 全文索引
+
+```mysql
+alter table user add fulltext(username);
+```
+
+###### 主键索引
+
+```mysql
+alter table user add primary key(id);
+```
+
+##### 查询索引
+
+```mysql
+show index from user;
+```
+
+#### 数据库增删改查
+
+##### 添加数据
+
+###### 插入一条数据
+
+```mysql
+insert into user values(1,'王宝强','123');
+insert user(id,user,pass) values(0,'Lucy','123');
+```
+
+###### 插入多条数据
+
+```mysql
+insert user(user,pass) values('Lucia','123'),('Lucy','456'),('Artist','789');
+```
+
+##### 删除数据
+
+```mysql
+delete from user where user='Lucy';
+```
+
+##### 修改数据
+
+###### 修改一个字段
+
+```mysql
+update user set user='Lucia' where id=1;
+```
+
+###### 修改多个字段
+
+```mysql
+update user set user="Lucia",pass="223" where id=1;
+```
+
+##### 单表查询数据
+
+###### 查询所有数据
+
+```mysql
+select * from user;  //效率慢，不推荐使用
+select user,pass from user;   //查询指定字段
+```
+
+###### 去除重复值
+
+```mysql
+select distinct user from user; //user去重
+```
+
+###### `where`条件查询
+
+```mysql
+select * from user where id=1;
+select * from user where id>2;
+select * from user where id<2;
+```
+
+###### `between`和`and`取区间值
+
+```mysql
+select * from user where age between 30 and 40;
+```
+
+###### `or`取值
+
+```mysql
+select * from user where age=40 or age=50;
+```
+
+###### `and`取值
+
+```mysql
+select * from user where age>20 and sex=0;
+```
+
+###### `!=`取值
+
+```mysql
+select * from user where age !=50;
+select * from user where age<>50;
+```
+
+###### `in`取值
+
+```mysql
+select * from user where age in(15,16,17);
+```
+
+###### `like`模糊查询
+
+```mysql
+select * from user where user like '%香%';
+select * from user where user like '%香%' or user like '%北%';
+```
+
+###### 排序查询
+
+```mysql
+select * from user order by age asc; //默认升序
+select * from user order by age desc;  //降序
+```
+
+###### `limit`查询
+
+```mysql
+select * from user limit 5,3;  //从5开始，查询3条
+select * from user limit 3;  // 从0开始，查询3条
+```
+
+###### 分组查询
+
+```mysql
+select * from user group by room;
+```
+
+###### 数量查询
+
+```mysql
+select count(*) from user;
+```
+
+###### `as`别名
+
+```mysql
+select username as name from user;
+```
+
+##### 多表查询数据
+
+###### 内联
+
+> where 不能放在on的前面
+
+```mysql
+select count(*) from mzitu_title inner join mzitu_tag_2_title on mzitu_title.id=mzitu_tag_2_title.title_id where mzitu_tag_2_title.tag_id=2;
+```
+
+###### 左联
+
+```mysql
+select shop_user.username from shop_user left join shop_goods on shop_user.gid=ship_goods.id;
+```
+
+###### 右联
+
+```mysql
+select shop_user.username from shop_user right join shop_goods on shop_user.gid=ship_goods.id;
+```
+
+###### 嵌套查询
+
+```mysql
+select * from shop_user where gid in(select gid from shop_goods);
+```
+
 
 
 #### php操作数据库
