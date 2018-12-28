@@ -1411,9 +1411,227 @@ echo $user,$pass;  //lzl 123
 
 ### 1、类和对象语法
 
+```php
+class Person
+{
+    /**
+     * @$name:成员属性人的姓名
+     * @$age: 成员属性人的年龄
+     */
+    public $name;
+    public $age;
+
+    public function __construct($name, $age)
+        /**
+         * 构造函数
+         */
+    {
+        $this->name = $name;
+        $this->age = $age;
+    }
+
+    public function eat()
+        /**
+         * 成员方法
+         */
+    {
+        echo $this->name . "喜欢吃东西<br>";
+    }
+}
+
+//定义对象的第一种语法
+$lzl = new Person('林志玲', 42);
+//定义对象的第二种语法
+$name = 'Person';
+$lyf = new $name('刘亦菲', 28);
+//循环遍历对象
+foreach ($lyf as $key => $value) {
+    echo $key . ':' . $value . '<br>';
+}
+//调用对象的属性
+echo $lzl->name;
+//调用对象的方法
+$lzl->eat();
+```
+
 ### 2、继承
 
+#### 基本语法
+
+```php
+class Child extends Parent {
+    
+}
+//子类会继承父类的属性和方法
+```
+
+#### 访问权限
+
+1. 在类的外部，只可以直接访问public
+2. public和protected都可以被子类继承
+3. private不能被子类继承,可以在父类里面通过方法调用，然后把方法派生给子类，不能直接在子类内部调用父类的private
+
+#### 重写
+
+##### 覆盖重写
+
+##### 增加功能重写(parent关键字)
+
+```php
+//调用父类的普通方法
+public function say()
+    {
+       echo $this->name.'身高'.$this->height.'<br>';
+    }
+
+public function say(){
+    parent::say();
+    echo $this->name.'是老师<br>';
+}
+//调用父类构造方法
+class Actor extends Person
+{
+    public $weight;
+    public function __construct($name, $age, $height,$weight)
+    {
+        parent::__construct($name, $age, $height);
+        $this->weight=$weight;
+    }
+}
+```
+
+##### final关键字
+
+```php
+final class Person{
+    //此类不能被继承
+}
+final public function work(){
+    //次方法不能被重写
+}
+```
+
+##### 重写方法中的权限修改
+
+1. 重写的时候权限只能放大不能缩小
+2. public -> public
+3. protected -> protected public 
+4. private -> private protected public
+
 ### 3、魔术方法
+
+> 系统在特定的时间自动调用的方法
+
+#### `__get(属性名)`
+
+##### 触发时间：对象在外部`访问`私有成员或者受保护属性时调用
+
+```php
+public function __get($name)
+{
+    if ($name=='age'){
+        return $this->age;
+    }
+    if ($name='height'){
+        return $this->height;
+    }
+}
+```
+
+#### `__set(属性名,要设置的值)`
+
+##### 触发时间：对象在外部`设置`私有或者受保护成员属性时调用
+
+```php
+public function __set($name, $value)
+{
+    if ($name == 'age') {
+        $this->age = $value;
+    }
+}
+```
+
+#### `__unset(属性名)`
+
+##### 触发时间：对象在外部`销毁`私有或者受保护成员属性时调用
+
+```php
+public function __unset($name)
+{
+    if ($name=='age'){
+        unset($this->age);
+    }else {
+        echo '不允许删除';
+    }
+}
+```
+
+#### `__isset(属性名)`
+
+##### 触发时间：对象在外部`判断`私有或者受保护成员属性时调用
+
+```php
+public function __isset($name)
+{
+    return isset($this->$name);
+}
+```
+
+#### `__construct():构造方法`
+
+##### 触发时间：`创建`对象的时候自动调用
+
+#### `__destruct():析构方法`
+
+##### 触发时间：`销毁`对象的时候自动调用
+
+```php
+public function __destruct()
+{
+	echo $this->name.'对象内存空间被释放';
+}
+```
+
+#### `__toString():`
+
+##### 触发时间：`echo`对象的时候触发,需要return字符串
+
+```php
+public function __toString()
+{
+    return self::class.'类'.$this->name.'<br>';
+}
+```
+
+#### `__debugInfo():`
+
+##### 触发时间：`var_dump()`对象的时候触发，需要return一个数组
+
+```php
+public function __debugInfo()
+{
+    return ['age'=>$this->age,'height'=>$this->height];
+}
+```
+
+#### `__call(函数名，参数数组):`
+
+##### 触发时间：调用不存在的对象方法时候触发
+
+```php
+public function __call($name, $arguments)
+{
+
+}
+```
+
+#### `__callStatic(函数名，参数数组):`
+
+##### 触发时间：调用不存在的静态方法时候触发
+
+#### `serialize()`：序列化
+
+#### `unserialize()`：反序列化
 
 ### 4、常量、静态属性和方法
 
