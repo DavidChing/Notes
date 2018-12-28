@@ -606,6 +606,8 @@ $arr['css'] = 'pretty';  //关联数组添加成员
 
 ```php
 unset($arr[1]);  //删除以后数组中下标不会重新计算
+$arr = array_values($arr);  //重新计算下标，返回数组
+$arr = array_splice($arr,1,2); //截取数组，返回数组
 ```
 
 ##### 修改
@@ -682,6 +684,7 @@ error_log = '日志路径';  //错误日志的文件路径
 
 ```php
 date_default_timezone_set('PRC');   //设置时区
+date_default_timezone_set('Asia/Shanghai');   //设置时区
 echo date('Y-m-d H:i:s');    // 输出当前日期和事件
 ```
 
@@ -1090,6 +1093,356 @@ select shop_user.username from shop_user right join shop_goods on shop_user.gid=
 select * from shop_user where gid in(select gid from shop_goods);
 ```
 
-
-
 #### php操作数据库
+
+##### 连接数据库查询数据
+
+```php
+//连接数据库
+$link = mysqli_connect('localhost','root','1234');
+//判断是否连接成功
+if (!$link){
+    exit('数据库连接失败');
+}
+//设置字符集
+mysqli_set_charset($link,'utf8');
+//选择数据库
+mysqli_select_db($link,'mzitu');
+//准备sql语句
+$sql = "select * from mzitu_title limit 10";
+//发送sql语句
+$res = mysqli_query($link,$sql);
+//处理结果集
+while($rows = mysqli_fetch_assoc($res)){
+    var_dump($rows);  //返回关联数组
+}
+while($rows = mysqli_fetch_row($res)){
+    var_dump($rows);  //返回索引数组
+}
+while($rows = mysqli_fetch_array($res)){
+    var_dump($rows); //返回关联数组和索引数组
+}
+$rows = mysqli_num_rows($res); //返回查询结果的行数
+$rows = mysqli_affected_rows($link); //查询影响的行数
+$res = mysqli_insert_id($link); //返回插入数据的id
+//关闭数据库
+mysqli_close($link);
+```
+
+##### 删除数据库数据
+
+```php
+$id = $_GET['id'];
+$link = mysqli_connect('localhost','root','1234');
+if (!$link){
+    exit('连接数据库失败')
+}
+mysqli_set_charset($link,'utf8');
+mysqli_select_db('mzitu');
+$sql = "delete from mzitu_title where id=$id";
+$boolean = mysqli_query($link,$sql);
+if ($boolean $$ mysqli_affected_rows($link)) {
+    echo '删除成功';
+} else {
+    echo '删除失败';
+}
+mysqli_close($link);
+```
+
+##### 修改数据库
+
+> 修改数据如果字段是字符串相关类型的，变量需要加引号
+
+```php+HTML
+<?php  edit.php
+$link = mysqli_connect('localhost','root','1234');
+if (!$link){
+    exit('连接数据库失败')
+}
+mysqli_set_charset($link,'utf8');
+mysqli_select_db($link,'mzitu');
+if ($_SERVER['REQUEST_METHOD'] == 'GET'){
+    $id = $_GET['id'];
+    $sql = "select * from mzitu_title where id=$id";
+	$obj = mysqli_query($link,$sql);
+	$rows = mysqli_fetch_assoc($obj);
+}
+mysqli_close($link);
+?>
+<?php   save.php
+$link = mysqli_connect('localhost','root','1234');
+if (!$link){
+    exit('连接数据库失败')
+}
+mysqli_set_charset($link,'utf8');
+mysqli_select_db($link,'mzitu');
+$id = $_POST['id'];
+$title = $_POST['title'];
+$sql = "update mzitu_title set title='$title' where id=$id";
+$res = mysqli_query($link,$sql);
+if ($res){
+    echo '数据修改成功';
+    echo "<a href='index.php'>返回首页</a>"
+}
+mysqli_close($link);
+?>
+<html> edit.php
+    <form action="save.php" method="post">
+        <input type="hidden" value="<?php echo $id ?>" name="id">
+        <input type="text" name="title" value="<?php echo $rows['title']?>">
+        <input type="submit">
+    </form>
+</html>
+
+```
+
+##### 分页
+
+```php+HTML
+<?php
+$page = empty($_GET['page']) ? 1 : $_GET['page'];
+$sql = "select count(*) as count from mzitu_title";
+$result = mysqli_query($link, $sql);
+$pageRes = mysqli_fetch_assoc($result);
+$count = $pageRes['count'];
+//每页的数据条数
+$num_per_page = 20;
+//最大页
+$max_page = ceil($count / $num_per_page);
+//偏移量
+$offset = ($page - 1) * $num_per_page;
+$prev = $page -1;
+$next = $page + 1;
+if ($prev<1){
+    $prev = 1;
+}
+if ($next>$max_page){
+    $next = $max_page;
+}
+?>
+<html>
+<body>
+<a href="index.php">首页</a>
+<a href="index.php?page=<?=$prev?>">上一页</a>
+<a href="index.php?page=<?=$next?>">下一页</a>
+<a href="index.php?page=<?=$max_page?>">尾页</a>
+</body>
+</html>
+```
+
+### 16、会话控制
+
+#### `cookie`
+
+##### 设置
+
+```php
+setcookie('name', 'zhangsan', time() + 60, '/');
+//键、值、生效时间、生效路径
+```
+
+##### 销毁
+
+```php
+setcookie('name', '', time() - 1, '/');
+//设置生效时间为过去的时间
+```
+
+##### 取值
+
+```php
+echo $_COOKIE['name'];
+```
+
+##### 登录
+
+> 退出登录就销毁cookie
+
+```php
+if (empty($_COOKIE['name'])){
+    exit('你没有登录');
+} else {
+    echo '登录成功';
+}
+```
+
+#### `session`
+
+##### 设置
+
+```php
+session_start();   //开启session
+$_SESSION['user'] = 'zhangsan';
+session_destroy();   //关闭session
+```
+
+##### 取值
+
+```php
+session_start();
+echo $_SESSION['user'];
+```
+
+##### 销毁
+
+```php
+session_start();
+unset($_SESSION['user']);
+```
+
+##### 登录
+
+> 退出登录就销毁session
+
+```php
+session_start();
+if (empty($_SESSION['user'])){
+    exit('你没有登录');
+} else {
+    echo '登录成功';
+}
+```
+
+### 17、验证码
+
+```php
+function verify($width = 100, $height = 40, $num = 5, $type = 1)
+{
+    $image = imagecreatetruecolor($width, $height);
+
+    $code = '';
+    switch ($type) {
+        case 1:
+            $str = '0123456789';
+            $code = substr(str_shuffle($str), 0, $num);
+            break;
+        case 2:
+            $arr = range('a', 'z');
+            shuffle($arr);
+            $arr = array_slice($arr, 0, $num);
+            $code = join('', $arr);
+            break;
+        case 3:
+            $str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $code = substr(str_shuffle($str), 0, $num);
+            break;
+    }
+    imagefilledrectangle($image, 0, 0, $width, $height,darkColor($image));
+    for ($i = 0; $i < $num; $i++) {
+        $x = floor($width / $num) * $i;
+        $y = mt_rand(10, $height - 20);
+        imagechar($image, 4, $x, $y, $code[$i], lightColor($image));
+    }
+for ($i = 0; $i < 50; $i++) {
+        imagesetpixel($image, mt_rand(0, $width), mt_rand(0, $height), darkColor($image));
+    }
+    header('content-type:image/png');
+    imagepng($image);
+    imagedestroy($image);
+    return $code;
+}
+
+function lightColor($image)
+{
+    return imagecolorallocate($image, mt_rand(130, 255), mt_rand(130, 255), mt_rand(130, 255));
+}
+
+function darkColor($image)
+{
+    return imagecolorallocate($image, mt_rand(0, 120), mt_rand(0, 120), mt_rand(0, 120));
+}
+```
+
+### 18、水印
+
+### 19、文件操作
+
+```php
+readfile('a.txt');    //输出到浏览器
+$res = file('a.txt');   //返回索引数组
+$str = file_get_contents('a.txt');
+file_put_contents('a.txt','新内容')  //如果有内容则覆盖，如果文件不存在，则创建该文件并写入内容
+```
+
+```php
+$fp = fopen('a.txt','r');   // 以指定模式打开文件获得文件句柄
+// r, r+, w, W+, a, a+ 六种模式
+fwrite($fp,$str);  //写入文件，模式不同，结果不同
+fseek($fp,int);   // 移动文件指针到指定位置
+fread($fp,len);   // 读取文件指定长度，模式不同，结果不同
+fclose($fp); // 关闭文件句柄
+```
+
+```php
+var_dump(pathinfo('demo.txt'));
+echo basename('demo.txt');  //demo.txt
+echo dirname('demo.txt')   //返回文件所在目录
+array (size=4)
+  'dirname' => string '.' (length=1)     // 文件目录
+  'basename' => string 'demo.txt' (length=8)  // 文件全名
+  'extension' => string 'txt' (length=3)  // 文件扩展名
+  'filename' => string 'demo' (length=4)  // 文件名
+```
+
+```php
+$arr = ['user' => 'lzl', 'pass' => '123'];
+echo http_build_query($arr);
+//user=lzl&pass=123
+
+$res = parse_url('https://www.mzitu.com/page/5/?user=lzl');
+var_dump($res);
+array (size=4)
+  'scheme' => string 'https' (length=5)
+  'host' => string 'www.mzitu.com' (length=13)
+  'path' => string '/page/5/' (length=8)
+  'query' => string 'user=lzl' (length=8)
+    
+parse_str('user=lzl&pass=123');
+echo $user,$pass;  //lzl 123
+```
+
+### 20、正则表达式
+
+### 21、文件上传
+
+### 22、模板引擎
+
+## PHP高级
+
+### 1、类和对象语法
+
+### 2、继承
+
+### 3、魔术方法
+
+### 4、常量、静态属性和方法
+
+### 5、抽象类
+
+### 6、接口
+
+### 7、trait
+
+### 8、命名空间
+
+### 9、异常处理
+
+### 10、PDO
+
+## PHP高级实战
+
+### 1、验证码类
+
+### 2、分页类
+
+### 3、文件上传类
+
+### 4、图像处理类
+
+### 5、数据库操作类
+
+### 6、模板引擎类
+
+### 7、设计模式
+
+### 8、自己搭建MVC框架
