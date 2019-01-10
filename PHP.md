@@ -1468,8 +1468,19 @@ class Child extends Parent {
 #### 访问权限
 
 1. 在类的外部，只可以直接访问public
+
 2. public和protected都可以被子类继承
+
 3. private不能被子类继承,可以在父类里面通过方法调用，然后把方法派生给子类，不能直接在子类内部调用父类的private
+
+   ```php
+   class Human(){
+       public $money = 3000;
+       protected $car = 'BMW';
+       private $gf = 'mv';
+   }
+   ```
+
 
 #### 重写
 
@@ -1635,7 +1646,44 @@ public function __call($name, $arguments)
 
 ### 4、常量、静态属性和方法
 
-### 5、抽象类
+#### 静态属性和方法:`static`关键字
+
+```php
+class Math{
+    static public $name='林志玲';
+    //静态属性的定义
+    static public function add($a,$b){
+        //静态方法的定义
+        return $a + $b;
+    }
+}
+Math::add(1,2); //静态方法的调用
+Math::$name; //静态属性的调用
+```
+
+#### 类常量:`const`关键字
+
+```php
+class Math{
+    const PI = 3.14; //类常量的定义
+}
+Math::PI; //类常量的调用
+```
+
+### 5、单例模式
+
+```php
+class Single{
+    public $rand;
+    protected function __construct(){
+        $this->rand=mt_rand(10000,99999);
+    }
+}
+```
+
+
+
+### 抽象类
 
 ### 6、接口
 
