@@ -1153,7 +1153,7 @@ mysqli_close($link);
 
 > 修改数据如果字段是字符串相关类型的，变量需要加引号
 
-```php+HTML
+```php
 <?php  edit.php
 $link = mysqli_connect('localhost','root','1234');
 if (!$link){
@@ -1198,7 +1198,7 @@ mysqli_close($link);
 
 ##### 分页
 
-```php+HTML
+```php
 <?php
 $page = empty($_GET['page']) ? 1 : $_GET['page'];
 $sql = "select count(*) as count from mzitu_title";
@@ -1518,7 +1518,7 @@ final class Person{
     //此类不能被继承
 }
 final public function work(){
-    //次方法不能被重写
+    //此方法不能被重写
 }
 ```
 
@@ -1532,10 +1532,12 @@ final public function work(){
 ### 3、魔术方法
 
 > 系统在特定的时间自动调用的方法
+>
+> 不可见成员是指私有的、受保护的或者不存在的成员。
 
 #### `__get(属性名)`
 
-##### 触发时间：对象在外部`访问`私有成员或者受保护属性时调用
+##### 触发时间：对象在外部`访问`不可见成员时调用
 
 ```php
 public function __get($name)
@@ -1551,7 +1553,7 @@ public function __get($name)
 
 #### `__set(属性名,要设置的值)`
 
-##### 触发时间：对象在外部`设置`私有或者受保护成员属性时调用
+##### 触发时间：对象在外部`设置`不可见成员时调用
 
 ```php
 public function __set($name, $value)
@@ -1564,7 +1566,7 @@ public function __set($name, $value)
 
 #### `__unset(属性名)`
 
-##### 触发时间：对象在外部`销毁`私有或者受保护成员属性时调用
+##### 触发时间：对象在外部`销毁`不可见成员时调用
 
 ```php
 public function __unset($name)
@@ -1579,7 +1581,7 @@ public function __unset($name)
 
 #### `__isset(属性名)`
 
-##### 触发时间：对象在外部`判断`私有或者受保护成员属性时调用
+##### 触发时间：对象在外部`isset/empty`不可见成员时调用
 
 ```php
 public function __isset($name)
@@ -1644,6 +1646,8 @@ public function __call($name, $arguments)
 
 #### `unserialize()`：反序列化
 
+#### 魔术方法的意义
+
 ### 4、常量、静态属性和方法
 
 #### 静态属性和方法:`static`关键字
@@ -1670,30 +1674,115 @@ class Math{
 Math::PI; //类常量的调用
 ```
 
-### 5、单例模式
+#### 单例模式
 
 ```php
 class Single{
     public $rand;
-    protected function __construct(){
+    static protected $ins;
+    final private function __construct(){
         $this->rand=mt_rand(10000,99999);
     }
+    static public function getIns(){
+        if(self::$ins==null){
+            self::$ins = new self();
+        }
+        return self::$ins;
+    }
+}
+$a = Single::getIns();
+$b = Single::getIns();
+```
+
+### 5、自动加载
+
+```php
+function myLoad($class){
+    require('./lib/'.$class.'.php');
+}
+spl_autoload_register('myLoad');
+//实例化不存在的类的时候，调用指定的函数
+$a = new mysql();
+```
+
+### 6、抽象类
+
+```php
+/**
+ * 面向接口编程
+ */
+abstract class aDB{
+    /**
+     * [conn 连接数据库]
+     * @return [数据库连接] [数据库连接]
+     */
+    abstract public function conn();
+    /**
+     * [getAll 查询多条记录]
+     * @return [array] [查询数据库的结果二维数组]
+     */
+    abstract public function getAll();
+}
+// 实现
+class Mysql extends aDB{
+    public function conn(){
+
+    }
+
+    public function getAll(){
+
+    }
+}
+//使用
+class Mysql extends aDB{
+    $this->conn();
+    $this->getAll();
 }
 ```
 
+### 7、接口
 
+- 接口本身就是抽象的，方法前不用加abstract
 
-### 抽象类
+- 接口里的方法，只能是public
 
-### 6、接口
+- 类可以同时实现多个接口
 
-### 7、trait
+  > 抽象类：相当于一类事物的规范。
+  >
+  > 接口：组成事物的零件的规范。
 
-### 8、命名空间
+```php
+interface flyer{
+    public function fly($oil,$height);
+}
+interface runner{
+    public function run($speed,$dir);
+}
+interface swimer{
+    public function swim($dir);
+}
 
-### 9、异常处理
+class Super implements flyer,runner{
+    public function fly($oil,$height){
 
-### 10、PDO
+    }
+    public function run($speed,$dir){
+
+    }
+}
+
+$a = new Super();
+$a->fly(10,20);
+```
+
+### 8、trait
+
+### 9、命名空间
+
+### 10、异常处理
+
+### 11、PDO
 
 ## PHP高级实战
 
