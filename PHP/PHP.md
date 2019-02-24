@@ -1157,7 +1157,7 @@ mysqli_close($link);
 <?php  edit.php
 $link = mysqli_connect('localhost','root','1234');
 if (!$link){
-    exit('连接数据库失败')
+    exit('连接数据库失败');
 }
 mysqli_set_charset($link,'utf8');
 mysqli_select_db($link,'mzitu');
@@ -1172,7 +1172,7 @@ mysqli_close($link);
 <?php   save.php
 $link = mysqli_connect('localhost','root','1234');
 if (!$link){
-    exit('连接数据库失败')
+    exit('连接数据库失败');
 }
 mysqli_set_charset($link,'utf8');
 mysqli_select_db($link,'mzitu');
@@ -1182,7 +1182,7 @@ $sql = "update mzitu_title set title='$title' where id=$id";
 $res = mysqli_query($link,$sql);
 if ($res){
     echo '数据修改成功';
-    echo "<a href='index.php'>返回首页</a>"
+    echo "<a href='index.php'>返回首页</a>";
 }
 mysqli_close($link);
 ?>
